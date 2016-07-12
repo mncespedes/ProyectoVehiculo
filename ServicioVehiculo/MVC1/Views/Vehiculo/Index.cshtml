@@ -1,0 +1,99 @@
+﻿@model List<MVC1.Models.VehiculoModels>
+<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<div ng-app="vehiculoControlRemoto" ng-controller="VehiculoCtrl">
+    <div ng-hide="mostrarPanelConf">
+        <span>Configurar tamaño de matriz</span>
+        <br />
+        <br />
+        n: <input type="text" ng-model="n"> x m: <input type="text" ng-model="m"><br>
+        <br>
+        <button ng-click="EnviarconfiguracionTamano()">Enviar</button>
+        <br>
+        <br>
+        <div ng-hide="mostrarErrorConf" class="ng-hide">
+            <label>{{resultado}}</label>
+        </div>
+
+    </div>
+    <div ng-hide="mostrarPanelCom">
+        <span>Comando desplazamiento , dirección</span>
+        <br />
+        <br />
+        Comando: <input type="text" ng-model="cmd"><br>
+        <br>
+        <button ng-click="Enviarcomando()">Enviar</button>
+        <button ng-click="obtenerPosicion()" ng-hide="mostrarBtnPosicion">Ver posición</button>
+        <br>
+        <br>
+        <div>
+            Posición: {{posicionFinal}} - Mensaje: {{desplazamientoMsj}}
+        </div>
+    </div>
+</div>
+
+<script>
+    var app = angular.module('vehiculoControlRemoto', []);
+    app.controller('VehiculoCtrl', function ($scope, $http) {
+        $scope.n = 0;
+        $scope.m = 0;
+        $scope.cmd = "";
+        $scope.posicion = "0,0";
+        $scope.posicionFinal = "";
+        $scope.desplazamientoMsj = "";
+        $scope.mostrarErrorConf = true;
+        $scope.mostrarPanelConf = false;
+        $scope.mostrarPanelCom = true;
+        $scope.mostrarBtnPosicion = true;
+        $scope.EnviarconfiguracionTamano = function () {
+            $scope.resultado = "";
+            $http.post('/Vehiculo/PostConfiuracionMatriz', {
+                n: parseInt($scope.n),
+                m: parseInt($scope.m)
+            })
+            .success(function (data, status, headers, config) {
+                $scope.resultado = data;
+                if ($scope.resultado != "Ok") {
+                    $scope.mostrarErrorConf = false;
+                    $scope.mostrarPanelConf = false;
+                    $scope.mostrarPanelCom = true;
+                }
+                else {
+                    $scope.mostrarErrorConf = true;
+                    $scope.mostrarPanelConf = true;
+                    $scope.mostrarPanelCom = false;
+                }
+            })
+            .error(function (data, status, header, config) {
+                $scope.resultado = "Error";
+            });
+        };
+
+
+        $scope.Enviarcomando = function () {
+            
+            $http.post('/Vehiculo/PostComandoDesplazamiento', { comando: $scope.cmd, n: $scope.n, m: $scope.m, posicion: $scope.posicion })
+            .success(function (data, status, headers, config) {
+                $scope.posicionFinal = data.Posicion;
+                $scope.desplazamientoMsj = data.Mensaje;
+                $scope.posicion = data.Posicion;
+                $scope.mostrarBtnPosicion = false;
+            })
+            .error(function (data, status, header, config) {
+                $scope.resultado = "Error";
+            });
+        };
+
+        $scope.obtenerPosicion = function () {
+
+            $http.get('/Vehiculo/GetPosicion')
+            .success(function (data, status, headers, config) {
+                alert("posición: " + data);
+            })
+            .error(function (data, status, header, config) {
+                $scope.resultado = "Error";
+            });
+        };
+    });
+
+</script>
