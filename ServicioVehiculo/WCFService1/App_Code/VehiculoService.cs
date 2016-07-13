@@ -14,7 +14,7 @@ public class VehiculoService : IVehiculoService
     {
         //leer archivo
         string line;
-        StreamReader stream = new StreamReader("posicion.txt");
+        StreamReader stream = new StreamReader(System.Web.Configuration.WebConfigurationManager.AppSettings.Get("ruta"));
         do
         {
             line = stream.ReadLine();            
@@ -79,7 +79,7 @@ public class VehiculoService : IVehiculoService
             modelRespuesta.Posicion = "0,0";
             return modelRespuesta;
         }
-        StreamWriter escrito = new StreamWriter("posicion.txt");
+        StreamWriter escrito = new StreamWriter(System.Web.Configuration.WebConfigurationManager.AppSettings.Get("ruta"));
         //Escribir en el archivo
         escrito.WriteLine(posiconFinal);
         //Cerrar el archivo
