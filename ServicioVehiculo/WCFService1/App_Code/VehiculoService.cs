@@ -14,7 +14,7 @@ public class VehiculoService : IVehiculoService
     {
         //leer archivo
         string line;
-        StreamReader stream = new StreamReader(@"C:\Users\neyder\Desktop\posicion.txt");
+        StreamReader stream = new StreamReader("posicion.txt");
         do
         {
             line = stream.ReadLine();            
@@ -54,7 +54,7 @@ public class VehiculoService : IVehiculoService
                 foreach (var desplazamiento in desplazamientos)
                 {
                     VehiculoAccion accion = new VehiculoAccion();
-                        accion = desplazar(desplazamiento, df, dc, n, m);
+                    accion = desplazar(desplazamiento, df, dc, n, m);
                     df = accion.Df;
                     dc = accion.Dc;
                     mensaje = accion.Mensaje;
@@ -79,7 +79,7 @@ public class VehiculoService : IVehiculoService
             modelRespuesta.Posicion = "0,0";
             return modelRespuesta;
         }
-        StreamWriter escrito = new StreamWriter(@"C:\Users\neyder\Desktop\posicion.txt");
+        StreamWriter escrito = new StreamWriter("posicion.txt");
         //Escribir en el archivo
         escrito.WriteLine(posiconFinal);
         //Cerrar el archivo
@@ -96,52 +96,59 @@ public class VehiculoService : IVehiculoService
         int dc = desCol;
         VehiculoAccion modelRespuesta = new VehiculoAccion();
         String[] desp = desplazamiento.Split(delimitaD);
-        if (desp[1] == "N")
+
+        switch (desp[1])
         {
-            df = df + Convert.ToInt32(desp[0]);
-            if (df > n)
-            {
-                modelRespuesta.Mensaje = "Se ha detenido el avance por salir de los límites";
-                modelRespuesta.Posicion = df + "," + dc;
-                modelRespuesta.Estado = false;
-                return modelRespuesta;
-            }
+            case "N":
+                df = df + Convert.ToInt32(desp[0]);
+                if (df >= n)
+                {
+                    modelRespuesta.Df = desFila;
+                    modelRespuesta.Dc = desCol;
+                    modelRespuesta.Mensaje = "Se ha detenido el avance por salir de los límites";
+                    modelRespuesta.Posicion = df + "," + dc;
+                    modelRespuesta.Estado = false;
+                    return modelRespuesta;
+                }
+                break;
+            case "E":
+                dc = dc + Convert.ToInt32(desp[0]);
+                if (dc >= n)
+                {
+                    modelRespuesta.Df = desFila;
+                    modelRespuesta.Dc = desCol;
+                    modelRespuesta.Mensaje = "Se ha detenido el avance por salir de los límites";
+                    modelRespuesta.Posicion = df + "," + dc;
+                    modelRespuesta.Estado = false;
+                    return modelRespuesta;
+                }
+                break;
+            case "O":
+                dc = dc - Convert.ToInt32(desp[0]);
+                if (dc < 0)
+                {
+                    modelRespuesta.Df = desFila;
+                    modelRespuesta.Dc = desCol;
+                    modelRespuesta.Mensaje = "Se ha detenido el avance por salir de los límites";
+                    modelRespuesta.Posicion = df + "," + dc;
+                    modelRespuesta.Estado = false;
+                    return modelRespuesta;
+                }
+                break;
+             case "S":
+                df = df - Convert.ToInt32(desp[0]);
+                if (df < 0)
+                {
+                    modelRespuesta.Df = desFila;
+                    modelRespuesta.Dc = desCol;
+                    modelRespuesta.Mensaje = "Se ha detenido el avance por salir de los límites";
+                    modelRespuesta.Posicion = df + "," + dc;
+                    modelRespuesta.Estado = false;
+                    return modelRespuesta;
+                }
+                break;
         }
-        else if (desp[1] == "E")
-        {
-            dc = dc + Convert.ToInt32(desp[0]);
-            if (dc > n)
-            {
-                modelRespuesta.Mensaje = "Se ha detenido el avance por salir de los límites";
-                modelRespuesta.Posicion = df + "," + dc;
-                modelRespuesta.Estado = false;
-                return modelRespuesta;
-            }
-        }
-        else if (desp[1] == "O")
-        {
-            dc = dc - Convert.ToInt32(desp[0]);
-            if (dc < 0)
-            {
-                dc = dc + 1;
-                modelRespuesta.Mensaje = "Se ha detenido el avance por salir de los límites";
-                modelRespuesta.Posicion = df + "," + dc;
-                modelRespuesta.Estado = false;
-                return modelRespuesta;
-            }
-        }
-        else if (desp[1] == "S")
-        {
-            df = df - Convert.ToInt32(desp[0]);
-            if (df < 0)
-            {
-                df = df + 1;
-                modelRespuesta.Mensaje = "Se ha detenido el avance por salir de los límites";
-                modelRespuesta.Posicion = df + "," + dc;
-                modelRespuesta.Estado = false;
-                return modelRespuesta;
-            }
-        }
+
         modelRespuesta.Mensaje = "Se realizó satisfactoriamente";
         modelRespuesta.Posicion = df + "," + dc;
         modelRespuesta.Df = df;
